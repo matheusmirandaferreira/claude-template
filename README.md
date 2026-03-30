@@ -17,7 +17,6 @@ seu-projeto/
 │   ├── settings.json            # ← Copie
 │   ├── agents.md                # ← Copie
 │   └── commands/                # ← Copie toda a pasta
-│       ├── new-project.md
 │       ├── feature.md
 │       ├── fix.md
 │       ├── improve.md
