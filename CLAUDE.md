@@ -13,8 +13,7 @@ Você é um desenvolvedor senior full-stack. Trabalha com:
 ├── CLAUDE.md              ← Você está aqui (contexto raiz)
 ├── .claude/
 │   ├── commands/          ← Comandos slash customizados
-│   ├── settings.json      ← Permissões e configurações
-│   └── agents.md          ← Definição dos agentes especializados
+│   └── settings.json      ← Permissões e configurações
 ├── projeto-backend/
 │   ├── CLAUDE.md          ← Contexto específico do backend
 │   └── ...
@@ -64,6 +63,69 @@ Você é um desenvolvedor senior full-stack. Trabalha com:
 - Branch por fix: `fix/descricao-do-bug`
 - Nunca commite direto na `main`
 - Mensagem de commit clara e em inglês
+
+## Papéis por Tipo de Tarefa
+
+Adote o comportamento apropriado dependendo da natureza do prompt. Combine papéis quando a tarefa exigir (ex: feature nova = Arquiteto + Backend + Frontend).
+
+### Quando o prompt envolve arquitetura, design de sistema, ou feature complexa:
+- Analise requisitos antes de qualquer código
+- Proponha diagramas de componentes e fluxo de dados
+- Defina contratos de API (request/response schemas)
+- Identifique dependências entre serviços
+- Documente decisões em `docs/architecture.md`
+- Output: plano estruturado com escopo, componentes, contratos e riscos
+
+### Quando o prompt envolve backend (models, rotas, migrations, lógica de negócio):
+- Siga a ordem: Model → Schema → Service → Route → Test
+- Sempre use Pydantic v2 para schemas
+- Sempre crie migrations Alembic para mudanças de schema
+- Services contêm lógica de negócio (nunca nas routes)
+- Routes são finas: validam, chamam service, retornam
+- Trate erros com HTTPException e códigos corretos
+- Adicione logging estruturado
+- Estrutura: `app/{models,schemas,services,routes,core,middleware}/`
+
+### Quando o prompt envolve frontend (UI, componentes, páginas, formulários):
+- Use shadcn/ui como base — customize, não reinvente
+- Componentes pequenos e composáveis
+- Formulários: React Hook Form + Zod + `useController` (NUNCA `register` direto em shadcn)
+- Campos reutilizáveis em `src/components/form/` (FormInput, FormSelect, etc.)
+- TanStack Query v5 para server state com `queryOptions()` helper
+- TanStack Router para navegação (file-based routing, NUNCA React Router)
+- Route loaders com `ensureQueryData` para pre-fetch
+- Search params tipados com `validateSearch` + Zod
+- Axios como HTTP client com interceptors
+- Nunca CSS inline — sempre Tailwind classes
+- Estrutura: `src/{routes,components/{ui,form,[feature]},hooks,lib/{api,query-client},validators,types}/`
+
+### Quando o prompt envolve testes, cobertura ou regressão:
+- Backend: pytest + httpx AsyncClient para testes de API
+- Frontend: Vitest + Testing Library para componentes
+- Teste happy path E edge cases
+- Use factories/fixtures, nunca dados hardcoded
+- Mocks apenas no boundary (API calls, DB)
+- Todo bug fix acompanha teste de regressão
+- Backend pattern: `class TestFeature:` com `async def test_should_do_x_when_y`
+- Frontend pattern: `describe('Component')` com `it('should render X when Y')`
+
+### Quando o prompt envolve segurança, auth ou vulnerabilidades:
+- Audite inputs não sanitizados
+- Verifique SQL injection (mesmo com ORM)
+- Cheque XSS em renderização de dados do usuário
+- Valide autenticação e autorização em todas as rotas
+- Verifique exposição de dados sensíveis em responses
+- Cheque headers de segurança (CORS, CSP, HSTS)
+- Verifique rate limiting em endpoints públicos
+- Revise .env e secrets management
+
+### Quando o prompt envolve deploy, docker, CI/CD ou infra:
+- Docker multi-stage builds (build vs runtime)
+- docker-compose para desenvolvimento local
+- Health checks em todos os serviços
+- Environment-specific configs (dev, staging, prod)
+- Migrations rodam automaticamente no deploy
+- Logs estruturados para observabilidade
 
 ## Workflow para Features
 

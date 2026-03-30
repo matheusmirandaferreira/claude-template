@@ -12,11 +12,11 @@ Copie estes arquivos para a raiz do seu projeto:
 ```bash
 # Estrutura que você precisa
 seu-projeto/
-├── CLAUDE.md                    # ← Copie e adapte
+├── CLAUDE.md                    # ← Copie e adapte (inclui papéis por tipo de tarefa)
 ├── .claude/
 │   ├── settings.json            # ← Copie
-│   ├── agents.md                # ← Copie
 │   └── commands/                # ← Copie toda a pasta
+│       ├── new-project.md
 │       ├── feature.md
 │       ├── fix.md
 │       ├── improve.md
@@ -52,8 +52,6 @@ No Claude Code, use `/` para acessar os comandos:
 | `/review`       | Code review com checklist de segurança              | `/review` ou `/review app/routes/users.py`           |
 | `/test`         | Roda testes e gera relatório                        | `/test` ou `/test coverage`                          |
 | `/migrate`      | Gerencia migrations Alembic                         | `/migrate generate` ou `/migrate up`                 |
-| `/add-auth`     | Adiciona autenticação JWT completa                  | `/add-auth`                                          |
-| `/dockerize`    | Configura Docker + docker-compose                   | `/dockerize`                                         |
 | `/security-audit` | Auditoria de segurança completa                  | `/security-audit`                                    |
 | `/status`       | Relatório de saúde do projeto                       | `/status`                                            |
 | `/pre-deploy`   | Checklist pré-deploy automatizado                   | `/pre-deploy`                                        |
@@ -83,16 +81,18 @@ Precisa de paginação no backend e infinite scroll no frontend.
 ```
 → Claude vai seguir o workflow de `/improve`
 
-### 4. Agentes Automáticos
+### 4. Papéis Automáticos por Tipo de Tarefa
 
-O Claude seleciona automaticamente o agente certo:
+O CLAUDE.md define comportamentos por contexto (embutidos no arquivo que o Claude Code realmente lê):
 
-- **Arquiteto** → Para decisões de design e features complexas
-- **Backend Engineer** → Para models, APIs, lógica de negócio
-- **Frontend Engineer** → Para UI, componentes, estado
-- **QA Engineer** → Para testes e cobertura
-- **Security Reviewer** → Para auditorias e auth
+- **Arquitetura** → Para decisões de design e features complexas
+- **Backend** → Para models, APIs, lógica de negócio
+- **Frontend** → Para UI, componentes, estado, formulários
+- **QA/Testes** → Para testes e cobertura
+- **Segurança** → Para auditorias e auth
 - **DevOps** → Para Docker, CI/CD, infra
+
+Claude combina papéis automaticamente (ex: feature nova = Arquitetura + Backend + Frontend).
 
 ### 5. Padrões Enforçados Automaticamente
 
@@ -136,9 +136,9 @@ Descrição do que fazer: $ARGUMENTS
 
 Ficará disponível como `/meu-comando` no Claude Code.
 
-### Adicionar Novo Agente
+### Adicionar Novo Papel/Comportamento
 
-Edite `.claude/agents.md` e adicione uma nova seção seguindo o padrão.
+Edite a seção "Papéis por Tipo de Tarefa" no `CLAUDE.md` raiz.
 
 ### Mudar Padrões de Código
 
