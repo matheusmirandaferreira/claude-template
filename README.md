@@ -1,145 +1,132 @@
-# Claude Code Dev Framework
+# claude-config
 
-Framework de configuração para desenvolvimento full-stack com Claude Code.
-Transforma prompts de features, bugs e melhorias em código de produção.
+Configuração compartilhada do Claude Code para os projetos da empresa.
+Padroniza comandos, regras de código e workflows entre todos os repositórios.
 
-## Como Usar
+## Estrutura deste repo
 
-### 1. Instalar o Framework em um Novo Projeto
+```
+claude-config/
+├── setup-claude.sh                # Script de instalação
+├── CLAUDE.md                      # Template raiz (regras universais)
+├── settings.json                  # Permissões do Claude Code
+├── commands/                      # Slash commands compartilhados
+│   ├── feature.md
+│   ├── fix.md
+│   ├── improve.md
+│   ├── crud.md
+│   ├── review.md
+│   ├── test.md
+│   ├── migrate.md
+│   ├── security-audit.md
+│   ├── status.md
+│   └── pre-deploy.md
+├── templates/
+│   ├── backend-CLAUDE.md          # CLAUDE.md para projetos FastAPI
+│   └── frontend-CLAUDE.md         # CLAUDE.md para projetos React
+└── docs/
+    ├── api-contracts.md           # Template de contratos de API
+    ├── architecture.md            # Template de ADRs
+    └── changelog.md               # Template de changelog
+```
 
-Copie estes arquivos para a raiz do seu projeto:
+## Como usar
+
+### Primeira vez no projeto
 
 ```bash
-# Estrutura que você precisa
-seu-projeto/
-├── CLAUDE.md                    # ← Copie e adapte (inclui papéis por tipo de tarefa)
-├── .claude/
-│   ├── settings.json            # ← Copie
-│   └── commands/                # ← Copie toda a pasta
-│       ├── new-project.md
-│       ├── feature.md
-│       ├── fix.md
-│       ├── improve.md
-│       ├── review.md
-│       ├── test.md
-│       ├── crud.md
-│       ├── security-audit.md
-│       ├── migrate.md
-│       ├── status.md
-│       ├── add-auth.md
-│       ├── dockerize.md
-│       └── pre-deploy.md
-├── seu-projeto-backend/
-│   └── CLAUDE.md                # ← Use o template backend
-├── seu-projeto-frontend/
-│   └── CLAUDE.md                # ← Use o template frontend
-└── docs/
-    ├── architecture.md          # ← Copie o template
-    ├── api-contracts.md         # ← Copie o template
-    └── changelog.md             # ← Copie o template
+# 1. Clone este repo em algum lugar da sua máquina
+git clone git@github.com:EMPRESA/claude-config.git ~/claude-config
+
+# 2. Vá para o seu projeto
+cd ~/projetos/meu-projeto
+
+# 3. Rode o setup
+~/claude-config/setup-claude.sh --full
 ```
 
-### 2. Comandos Disponíveis (Slash Commands)
+O que acontece:
+- Copia `.claude/settings.json` e `.claude/commands/` para o projeto
+- Cria `CLAUDE.md` raiz se não existir (nunca sobrescreve o existente)
+- Detecta pastas `*backend*` e `*frontend*` e instala os CLAUDE.md específicos
+- Cria templates de documentação em `docs/`
 
-No Claude Code, use `/` para acessar os comandos:
+### Atualizar apenas os comandos
 
-| Comando         | O que faz                                          | Exemplo                                              |
-|-----------------|-----------------------------------------------------|------------------------------------------------------|
-| `/feature`      | Implementa feature end-to-end com plano             | `/feature cadastro de produtos com foto e preço`     |
-| `/fix`          | Corrige bug com teste de regressão                  | `/fix login retorna 500 quando email tem acentos`    |
-| `/improve`      | Refatora com análise de impacto                     | `/improve extrair lógica de email para um service`   |
-| `/crud`         | Gera CRUD completo (back + front + tests + docs)    | `/crud Product`                                      |
-| `/review`       | Code review com checklist de segurança              | `/review` ou `/review app/routes/users.py`           |
-| `/test`         | Roda testes e gera relatório                        | `/test` ou `/test coverage`                          |
-| `/migrate`      | Gerencia migrations Alembic                         | `/migrate generate` ou `/migrate up`                 |
-| `/security-audit` | Auditoria de segurança completa                  | `/security-audit`                                    |
-| `/status`       | Relatório de saúde do projeto                       | `/status`                                            |
-| `/pre-deploy`   | Checklist pré-deploy automatizado                   | `/pre-deploy`                                        |
+Quando atualizarmos comandos no repo central:
 
-### 3. Workflow do Dia a Dia
-
-#### Nova Feature (prompt natural)
-```
-Preciso de um sistema de notificações. O usuário recebe notificações quando
-alguém comenta no post dele. Deve ter um ícone de sino no header com badge
-do número de não lidas, e uma página listando todas as notificações.
-```
-→ Claude vai seguir o workflow de `/feature` automaticamente pelo CLAUDE.md
-
-#### Bug Fix (prompt natural)
-```
-Bug: quando o usuário tenta editar o perfil sem mudar a foto, 
-o backend retorna 422 dizendo que o campo image é obrigatório,
-mas deveria ser opcional no update.
-```
-→ Claude vai seguir o workflow de `/fix`
-
-#### Melhoria (prompt natural)  
-```
-A listagem de produtos está lenta quando tem mais de 1000 items.
-Precisa de paginação no backend e infinite scroll no frontend.
-```
-→ Claude vai seguir o workflow de `/improve`
-
-### 4. Papéis Automáticos por Tipo de Tarefa
-
-O CLAUDE.md define comportamentos por contexto (embutidos no arquivo que o Claude Code realmente lê):
-
-- **Arquitetura** → Para decisões de design e features complexas
-- **Backend** → Para models, APIs, lógica de negócio
-- **Frontend** → Para UI, componentes, estado, formulários
-- **QA/Testes** → Para testes e cobertura
-- **Segurança** → Para auditorias e auth
-- **DevOps** → Para Docker, CI/CD, infra
-
-Claude combina papéis automaticamente (ex: feature nova = Arquitetura + Backend + Frontend).
-
-### 5. Padrões Enforçados Automaticamente
-
-O CLAUDE.md garante que o Claude sempre:
-
-- ✅ Planeja antes de codar
-- ✅ Implementa backend antes do frontend
-- ✅ Cria testes para toda mudança
-- ✅ Valida inputs (Pydantic + Zod)
-- ✅ Trata loading/error states no frontend
-- ✅ Documenta endpoints em api-contracts.md
-- ✅ Registra mudanças no changelog
-- ✅ Usa commits semânticos
-- ✅ Nunca usa `any` no TypeScript
-- ✅ Nunca hardcoda secrets
-- ✅ Segue a estrutura de pastas definida
-- ✅ Formulários com `useController` + shadcn/ui (nunca `register` direto)
-- ✅ Rotas com TanStack Router (file-based, nunca React Router)
-- ✅ Server state com TanStack Query v5 + `queryOptions()`
-- ✅ Route loaders com `ensureQueryData` para pre-fetch
-- ✅ Search params tipados com `validateSearch` + Zod
-- ✅ API functions com Axios retornando `.then(r => r.data)`
-
-## Customização
-
-### Adicionar Novo Comando
-
-Crie um arquivo `.claude/commands/meu-comando.md`:
-
-```markdown
-Descrição do que fazer: $ARGUMENTS
-
-## Processo
-1. Passo 1
-2. Passo 2
-
-## Regras
-- Regra 1
-- Regra 2
+```bash
+cd ~/projetos/meu-projeto
+~/claude-config/setup-claude.sh --commands --force
 ```
 
-Ficará disponível como `/meu-comando` no Claude Code.
+O `--force` sobrescreve os commands existentes. O `CLAUDE.md` raiz nunca é sobrescrito (é marcado como editável por projeto).
 
-### Adicionar Novo Papel/Comportamento
+### Flags disponíveis
 
-Edite a seção "Papéis por Tipo de Tarefa" no `CLAUDE.md` raiz.
+| Flag          | O que faz                                           |
+|---------------|-----------------------------------------------------|
+| `--full`      | Instala tudo (commands + backend + frontend + docs) |
+| `--commands`  | Atualiza apenas os slash commands                   |
+| `--backend`   | Instala template CLAUDE.md de backend               |
+| `--frontend`  | Instala template CLAUDE.md de frontend              |
+| `--force`     | Sobrescreve arquivos (exceto CLAUDE.md raiz)        |
+| `--dry-run`   | Mostra o que seria feito sem alterar nada            |
 
-### Mudar Padrões de Código
+## O que commitar no seu projeto
 
-Edite o `CLAUDE.md` do subprojeto relevante (backend ou frontend).
+Após rodar o setup, commite tudo que foi gerado:
+
+```bash
+git add .claude/ CLAUDE.md docs/
+git commit -m "chore: add claude code config"
+```
+
+Esses arquivos devem ficar no repositório do projeto para que todos os devs do time tenham acesso.
+
+## Fluxo de atualização
+
+```
+┌──────────────────┐     setup-claude.sh     ┌──────────────────┐
+│  claude-config   │ ──────────────────────>  │   projeto-api    │
+│  (repo central)  │      --commands          │  .claude/commands│
+│                  │      --force             │  CLAUDE.md       │
+└──────────────────┘                          └──────────────────┘
+                     ╲
+                      ╲  setup-claude.sh      ┌──────────────────┐
+                       ╲ ──────────────────>  │  projeto-admin   │
+                          --commands           │  .claude/commands│
+                          --force              │  CLAUDE.md       │
+                                              └──────────────────┘
+```
+
+**Arquivos centralizados** (sobrescrevem com `--force`):
+- `.claude/commands/*.md` — Comandos padronizados
+- `.claude/settings.json` — Permissões
+
+**Arquivos locais** (nunca sobrescritos):
+- `CLAUDE.md` raiz — Cada projeto adapta para seu contexto
+- `*/CLAUDE.md` nos subprojetos — Cada backend/frontend tem suas particularidades
+- `docs/*` — Documentação viva do projeto
+
+## Customização por projeto
+
+O `CLAUDE.md` raiz instalado pelo setup é um template. Cada projeto deve adaptar:
+
+1. **Nome do projeto** — Trocar `[projeto]` pelo nome real
+2. **Stack específica** — Se algum projeto usa algo diferente, ajustar
+3. **Regras adicionais** — Adicionar regras específicas do domínio
+4. **Workflows** — Adaptar se o projeto tem particularidades
+
+Os slash commands em `.claude/commands/` são genéricos e funcionam em qualquer projeto. Se precisar de um comando específico, crie direto no projeto — o setup não apaga commands que não existem no repo central.
+
+## Contribuindo
+
+Para alterar um comando ou regra que afeta todos os projetos:
+
+1. Crie uma branch neste repo
+2. Faça a alteração
+3. Abra PR com descrição do impacto
+4. Após merge, avise o time para rodar `setup-claude.sh --commands --force`
+
+Para alterações que só afetam um projeto, edite direto no repositório do projeto.
