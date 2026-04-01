@@ -5,6 +5,8 @@
       "Bash(npx *)",
       "Bash(pip install *)",
       "Bash(python -m pytest *)",
+      "Bash(php artisan *)",
+      "Bash(composer *)",
       "Bash(alembic *)",
       "Bash(uvicorn *)",
       "Bash(cat *)",
@@ -24,7 +26,6 @@
       "Bash(git merge *)",
       "Bash(git push *)",
       "Bash(docker compose *)",
-      "Bash(psql *)",
       "Read(*)",
       "Write(*)"
     ],

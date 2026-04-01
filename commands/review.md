@@ -1,58 +1,43 @@
-Faça uma revisão de código dos arquivos alterados: $ARGUMENTS
+Faça uma revisão de código: $ARGUMENTS
 
-Se $ARGUMENTS estiver vazio, revise os arquivos alterados no último commit ou staged files.
+Se $ARGUMENTS estiver vazio, revise staged files ou último commit.
 
-## O que Revisar
+## Checklist
 
-### Segurança (Prioridade Máxima)
-- [ ] Inputs validados (Pydantic/Zod)
-- [ ] Sem SQL injection (queries parametrizadas)
-- [ ] Sem XSS (dados sanitizados antes de render)
-- [ ] Auth/authz em todas as rotas protegidas
+### Segurança
+- [ ] Inputs validados
+- [ ] Sem SQL injection (queries parametrizadas / ORM)
+- [ ] Sem XSS (dados sanitizados)
+- [ ] Auth em rotas protegidas
 - [ ] Sem secrets hardcoded
-- [ ] Sem dados sensíveis em logs ou responses
-- [ ] Rate limiting onde necessário
+- [ ] Sem dados sensíveis em logs/responses
 
 ### Correção
-- [ ] Lógica de negócio está correta
+- [ ] Lógica correta
 - [ ] Edge cases tratados (null, empty, overflow)
-- [ ] Error handling adequado (não engole erros)
-- [ ] Status codes HTTP corretos
-- [ ] Tipos TypeScript corretos (sem `any`)
+- [ ] Error handling adequado
+- [ ] Status codes corretos
+- [ ] Tipagem correta
 
 ### Qualidade
 - [ ] Funções com responsabilidade única
-- [ ] Nomes descritivos (variáveis, funções, classes)
-- [ ] Sem código morto ou comentado
-- [ ] Sem duplicação desnecessária
-- [ ] Complexidade ciclomática aceitável (< 10)
-- [ ] Arquivos com tamanho razoável (< 300 linhas)
+- [ ] Nomes descritivos
+- [ ] Sem código morto
+- [ ] Sem duplicação
+- [ ] Arquivos < 300 linhas
 
 ### Performance
 - [ ] Sem N+1 queries
-- [ ] Sem re-renders desnecessários no React
-- [ ] Sem computações pesadas no render
-- [ ] Índices no banco para queries frequentes
+- [ ] Sem computações pesadas em hot paths
 
-### Testes
-- [ ] Testes existem para mudanças críticas
-- [ ] Testes cobrem happy path e error cases
-- [ ] Testes são independentes e determinísticos
+## Formato
 
-## Formato da Revisão
-
-Para cada problema encontrado, reporte:
-
+Para cada issue:
 ```
-### [SEVERIDADE] Arquivo:linha — Título curto
-
-**Problema**: Descrição do que está errado
-**Risco**: O que pode dar errado
-**Sugestão**: Como corrigir (com código se possível)
+### [🔴|🟡|🔵] Arquivo:linha — Título
+Problema: ...
+Risco: ...
+Sugestão: ...
 ```
 
-Severidades: 🔴 CRITICAL | 🟡 WARNING | 🔵 SUGGESTION
-
-No final, dê um resumo:
-- Total de issues por severidade
-- Avaliação geral (aprovado / aprovado com ressalvas / requer mudanças)
+Final: total por severidade + veredicto (aprovado / com ressalvas / requer mudanças)

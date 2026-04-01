@@ -1,82 +1,38 @@
-Gere um relatório de status do projeto.
+Relatório de status do projeto.
 
-## O que analisar
+## Analise
 
-### 1. Estrutura
-```bash
-# Listar estrutura do projeto
-find . -type f -name "*.py" -o -name "*.ts" -o -name "*.tsx" | head -100
-```
+1. Identifique a stack de cada subprojeto pelo CLAUDE.md
+2. Liste entidades/models, rotas, páginas, testes
+3. Encontre gaps (entidade sem teste, rota sem validação)
 
-### 2. Backend
-```bash
-# Models existentes
-find */app/models -name "*.py" ! -name "__init__.py" ! -name "base.py" 2>/dev/null
-
-# Routes existentes
-find */app/routes -name "*.py" ! -name "__init__.py" 2>/dev/null
-
-# Migrations
-ls */alembic/versions/*.py 2>/dev/null
-
-# Testes
-find */tests -name "test_*.py" 2>/dev/null
-```
-
-### 3. Frontend
-```bash
-# Páginas
-find */src/pages -name "*.tsx" 2>/dev/null
-
-# Componentes (excluindo ui/)
-find */src/components -name "*.tsx" ! -path "*/ui/*" 2>/dev/null
-
-# Hooks customizados
-find */src/hooks -name "*.ts" 2>/dev/null
-
-# Testes
-find */src/__tests__ -name "*.test.*" 2>/dev/null
-```
-
-### 4. Saúde do Código
 ```bash
 # Arquivos grandes (> 300 linhas)
-find . -name "*.py" -o -name "*.ts" -o -name "*.tsx" | xargs wc -l 2>/dev/null | sort -rn | head -20
+find . -name "*.py" -o -name "*.php" -o -name "*.ts" -o -name "*.tsx" -o -name "*.js" | grep -v node_modules | grep -v vendor | xargs wc -l 2>/dev/null | sort -rn | head -20
 
-# TODOs e FIXMEs
-grep -rn "TODO\|FIXME\|HACK\|XXX" --include="*.py" --include="*.ts" --include="*.tsx" 2>/dev/null
+# TODOs pendentes
+grep -rn "TODO\|FIXME\|HACK\|XXX" --include="*.py" --include="*.php" --include="*.ts" --include="*.tsx" --include="*.js" . 2>/dev/null | grep -v node_modules | grep -v vendor
 
-# any no TypeScript
-grep -rn ": any" --include="*.ts" --include="*.tsx" 2>/dev/null
+# Tipagem fraca
+grep -rn ": any" --include="*.ts" --include="*.tsx" . 2>/dev/null | grep -v node_modules
 ```
 
-## Formato do Relatório
+## Relatório
 
 ```
-## Status do Projeto — [data]
+## Status — [data]
 
 ### Resumo
-- Entidades: X models
-- Endpoints: Y rotas
-- Páginas: Z páginas
-- Testes: W arquivos de teste
+- Entidades: X | Endpoints: Y | Páginas: Z | Testes: W
 
-### Backend
-| Entidade | Model | Schema | Service | Route | Tests |
-|----------|-------|--------|---------|-------|-------|
-| User     | ✅    | ✅     | ✅      | ✅    | ✅    |
-| Product  | ✅    | ✅     | ✅      | ⚠️    | ❌    |
-
-### Frontend
-| Feature  | Types | API | Hooks | Components | Page | Tests |
-|----------|-------|-----|-------|------------|------|-------|
-| Users    | ✅    | ✅  | ✅    | ✅         | ✅   | ⚠️    |
+### Completude por entidade
+| Entidade | Model | Validação | Service | Route | Tests |
+|----------|-------|-----------|---------|-------|-------|
 
 ### Alertas
-- 🔴 [arquivos sem teste]
-- 🟡 [arquivos grandes para dividir]
-- 🔵 [TODOs pendentes]
+- 🔴 [sem teste]
+- 🟡 [arquivos grandes]
+- 🔵 [TODOs]
 
-### Próximos Passos Sugeridos
-1. [baseado nos gaps encontrados]
+### Próximos passos sugeridos
 ```

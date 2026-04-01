@@ -1,36 +1,26 @@
 Corrija o seguinte bug: $ARGUMENTS
 
-## Processo Obrigatório
+## Processo
 
-### Fase 1: Diagnóstico
-1. Leia a descrição do bug com atenção
-2. Identifique o módulo afetado (backend/frontend/ambos)
-3. Localize os arquivos prováveis com `grep` e `find`
-4. Analise o código ao redor do problema
-5. Formule a hipótese da causa raiz
+### 1. Diagnóstico
+- Identifique o módulo afetado (backend/frontend/ambos)
+- Localize os arquivos com `grep` e `find`
+- Formule a causa raiz
 
-### Fase 2: Correção
-1. Aplique a correção MÍNIMA necessária
-2. Não refatore código adjacente (a menos que seja a causa)
-3. Não mude assinaturas de função/API sem necessidade
-4. Preserve backward compatibility
+### 2. Correção
+- Aplique a correção MÍNIMA necessária
+- Não refatore código adjacente
+- Não mude assinaturas de API sem necessidade
 
-### Fase 3: Teste de Regressão
-1. Escreva um teste que FALHA antes da correção e PASSA depois
-2. Rode os testes existentes para garantir que nada quebrou:
-   - Backend: `python -m pytest tests/ -v`
-   - Frontend: `npm run test`
+### 3. Teste de regressão
+- Escreva um teste que reproduza o bug
+- Rode os testes existentes
 
-### Fase 4: Documentação
-1. Atualize `docs/changelog.md`:
-   ```
-   ### Fix
-   - **[módulo]**: [descrição do bug e da correção]
-   ```
-2. Commit: `fix: [descrição concisa do que foi corrigido]`
+### 4. Finalização
+- Atualize `docs/changelog.md`
+- Commit: `fix: [descrição]`
 
 ## Regras
-- NUNCA faça mudanças cosméticas junto com bug fixes
-- NUNCA mude mais arquivos do que o necessário
-- Se o bug revela um problema arquitetural, reporte como melhoria separada
-- Se não conseguir reproduzir, peça mais contexto antes de tentar corrigir
+- NUNCA mudanças cosméticas junto com bug fix
+- Se o bug revela problema arquitetural, reporte separado
+- Se não conseguir reproduzir, peça contexto antes de corrigir
