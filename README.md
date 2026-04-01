@@ -1,121 +1,143 @@
-# claude-config
+# Claude Team Config
 
-Configuração compartilhada do Claude Code para todos os projetos da empresa.
+Configurações padronizadas do Claude Code para equipes de desenvolvimento.
 
-## Como funciona
+Clone este repositório e integre no seu projeto para ter skills, comandos e convenções prontos para uso.
 
-O script `setup-claude.sh` **detecta automaticamente** a stack de cada subprojeto e gera `CLAUDE.md` com patterns concretos (exemplos de código, estrutura de pastas, comandos) para que o Claude Code saiba exatamente como codar naquele projeto.
+## Estrutura
 
-### Stacks suportadas
-
-| Stack | Detecta por | Tipo |
-|-------|-------------|------|
-| **FastAPI + SQLAlchemy** | `requirements.txt` ou `pyproject.toml` com `fastapi` | backend |
-| **Laravel** | `artisan` + `composer.json` com `laravel` | backend |
-| **Express + TypeORM** | `package.json` com `express` | backend |
-| **NestJS + TypeORM** | `package.json` com `@nestjs/core` | backend |
-| **PHP genérico** | `composer.json` sem laravel | backend |
-| **React + Vite + TanStack** | `package.json` com `react` | frontend |
+```
+claude-team-config/
+├── .claude/
+│   ├── skills/                  # Skills invocáveis via /nome ou automaticamente
+│   │   ├── code-review/         # /code-review — revisão de código
+│   │   ├── commit/              # /commit — commits padronizados
+│   │   ├── pr-description/      # /pr-description — gera descrição de PR
+│   │   ├── test-gen/            # /test-gen — gera testes
+│   │   ├── refactor/            # /refactor — refatoração guiada
+│   │   ├── doc-gen/             # /doc-gen — gera documentação
+│   │   ├── debug/               # /debug — investigação de bugs
+│   │   └── security-scan/       # /security-scan — análise de segurança
+│   ├── commands/                # ⚡ Gerado pelo setup.sh (atalhos do projeto)
+│   │   ├── front.md             # /front — navega para o frontend
+│   │   ├── back.md              # /back — navega para o backend
+│   │   ├── status.md            # /status — visão geral dos repos
+│   │   └── logs.md              # /logs — logs git recentes
+│   └── settings.json            # Permissões e hooks padrão
+├── CLAUDE.md                    # Convenções base do time
+├── scripts/
+│   └── setup.sh                 # Integra configs em um projeto existente
+└── README.md
+```
 
 ## Instalação
 
-```bash
-# 1. Clone uma vez
-git clone https://github.com/EMPRESA/claude-config.git ~/claude-config
-
-# 2. No seu projeto
-cd ~/projetos/meu-projeto
-~/claude-config/setup-claude.sh
-```
-
-O setup vai:
-- Detectar as stacks (ex: `backend/` é Express, `frontend/` é React)
-- Gerar `CLAUDE.md` raiz com regras universais
-- Gerar `CLAUDE.md` em cada subprojeto com patterns da stack
-- Instalar slash commands em `.claude/commands/`
-- Instalar `settings.json` com permissões
-- Criar templates em `docs/`
-
-## Atualização
+### Opção 1: Setup automático (recomendado)
 
 ```bash
-# Atualizar commands (mais comum)
-~/claude-config/setup-claude.sh --commands --force
-
-# Reconstruir CLAUDE.md (quando mudar de stack ou atualizar patterns)
-~/claude-config/setup-claude.sh --rebuild
-
-# Ver o que faria sem alterar
-~/claude-config/setup-claude.sh --dry-run
+# De dentro do diretório raiz do seu projeto
+curl -fsSL https://raw.githubusercontent.com/<seu-org>/claude-team-config/main/scripts/setup.sh | bash
 ```
 
-## Slash Commands
-
-| Comando | O que faz |
-|---------|-----------|
-| `/feature` | Implementa feature com plano obrigatório |
-| `/fix` | Corrige bug com teste de regressão |
-| `/improve` | Refatora com análise de impacto |
-| `/crud` | Gera CRUD completo (back + front + tests) |
-| `/review` | Code review com checklist de segurança |
-| `/test` | Roda testes e gera relatório |
-| `/migrate` | Gerencia migrations |
-| `/security-audit` | Auditoria de segurança |
-| `/status` | Relatório de saúde do projeto |
-| `/pre-deploy` | Checklist pré-deploy |
-
-Os commands são **stack-agnostic** — definem o processo (planeje → implemente → teste → documente). Os patterns específicos vêm do `CLAUDE.md` do subprojeto.
-
-## O que commitar
+Ou, se já clonou o repo:
 
 ```bash
-git add .claude/ CLAUDE.md docs/
-# E os CLAUDE.md dos subprojetos
-git add backend/CLAUDE.md frontend/CLAUDE.md
-git commit -m "chore: add claude config"
+git clone https://github.com/<seu-org>/claude-team-config.git /tmp/claude-team-config
+/tmp/claude-team-config/scripts/setup.sh
 ```
 
-## Arquitetura
+### Opção 2: Git submodule
 
-```
-claude-config/              ← Este repo (central)
-├── setup-claude.sh         ← Script de instalação
-├── settings.json           ← Permissões
-├── commands/               ← Slash commands (processo)
-├── stacks/                 ← Patterns por stack (código)
-│   ├── fastapi.md
-│   ├── laravel.md
-│   ├── node-express.md
-│   ├── nestjs.md
-│   ├── php.md
-│   └── react.md
-└── docs/                   ← Templates de documentação
+```bash
+# Adiciona como submodule na raiz do projeto
+git submodule add https://github.com/<seu-org>/claude-team-config.git .claude-team-config
 
-seu-projeto/                ← Após rodar setup
-├── CLAUDE.md               ← Gerado (regras universais)
-├── .claude/
-│   ├── settings.json       ← Copiado
-│   └── commands/           ← Copiado
-├── backend/
-│   └── CLAUDE.md           ← Gerado pela stack detectada
-├── frontend/
-│   └── CLAUDE.md           ← Gerado pela stack detectada
-└── docs/                   ← Templates
+# Roda o setup para copiar/linkar os arquivos
+.claude-team-config/scripts/setup.sh --link
 ```
 
-**Separação de responsabilidades:**
-- `CLAUDE.md` raiz → regras universais + workflows
-- `subprojeto/CLAUDE.md` → patterns da stack com código real
-- `.claude/commands/` → processo (o quê fazer, em que ordem)
+### Opção 3: Manual
 
-## Adicionar nova stack
+Copie `.claude/` e `CLAUDE.md` para a raiz do seu projeto.
 
-1. Crie `stacks/minha-stack.md` seguindo o formato (metadata + patterns)
-2. Adicione detecção no `setup-claude.sh` na função `detect_in()`
-3. Teste com `--dry-run`
+## Como funciona
+
+### Skills
+
+Skills são instruções em markdown que o Claude Code usa automaticamente ou via `/nome`. Cada skill fica em `.claude/skills/<nome>/SKILL.md`.
+
+| Skill | Comando | Descrição |
+|---|---|---|
+| code-review | `/code-review` | Revisão de código com checklist padronizado |
+| commit | `/commit` | Gera mensagem de commit no padrão Conventional Commits |
+| pr-description | `/pr-description` | Gera descrição de PR com contexto e checklist |
+| test-gen | `/test-gen` | Gera testes unitários e de integração |
+| refactor | `/refactor` | Refatoração com análise de impacto |
+| doc-gen | `/doc-gen` | Gera documentação técnica |
+| debug | `/debug` | Investigação guiada de bugs |
+| security-scan | `/security-scan` | Análise de vulnerabilidades |
+
+### Commands (gerados pelo setup)
+
+Commands são atalhos manuais e diretos, gerados sob medida para cada projeto pelo `setup.sh`. Eles ficam em `.claude/commands/`.
+
+O setup pergunta os repos do projeto e gera commands como:
+
+| Command | Descrição |
+|---|---|
+| `/front` | Navega e inspeciona o repo frontend |
+| `/back` | Navega e inspeciona o repo backend |
+| `/status` | Visão geral de todos os repos (branch, diff, último commit) |
+| `/logs` | Logs git recentes de todos os repos |
+
+Cada command de repo aceita sub-comandos: `/front status`, `/front deps`, `/front run dev`.
+
+Você pode criar mais commands a qualquer momento adicionando arquivos `.md` em `.claude/commands/`.
+
+### Skills vs Commands — quando usar cada um
+
+- **Skills** → workflows complexos que o Claude pode invocar sozinho (review, testes, debug).
+- **Commands** → atalhos determinísticos que você invoca manualmente (navegar entre repos, ver status).
+
+### CLAUDE.md
+
+O `CLAUDE.md` na raiz define convenções globais do time: estilo de código, padrões de commit, estrutura de branches, e regras de arquitetura. Ele é carregado automaticamente pelo Claude Code.
+
+### Customização
+
+Cada projeto pode ter seu próprio `CLAUDE.local.md` (adicionado ao `.gitignore`) para overrides locais.
+
+O `CLAUDE.md` base inclui uma seção `## Project-specific` que deve ser preenchida por cada projeto.
+
+## Atualizando
+
+Se usou submodule:
+```bash
+git submodule update --remote .claude-team-config
+.claude-team-config/scripts/setup.sh --link
+```
+
+Se copiou manualmente, re-clone e re-execute o setup.
+
+## Criando skills customizadas
+
+```bash
+mkdir -p .claude/skills/minha-skill
+cat > .claude/skills/minha-skill/SKILL.md << 'EOF'
+---
+name: minha-skill
+description: Descrição do que faz e quando usar.
+---
+
+# Minha Skill
+
+Instruções aqui...
+EOF
+```
 
 ## Contribuindo
 
-- Alterar um command → PR neste repo → time roda `--commands --force`
-- Alterar patterns de stack → PR neste repo → time roda `--rebuild`
-- Alterar algo só no projeto → edite direto no repo do projeto
+1. Crie uma branch: `feature/nome-da-skill`
+2. Adicione ou edite skills em `.claude/skills/`
+3. Teste localmente rodando o Claude Code no projeto
+4. Abra um PR com descrição do que a skill faz e quando dispara

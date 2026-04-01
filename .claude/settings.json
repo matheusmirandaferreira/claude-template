@@ -1,0 +1,48 @@
+{
+  "$schema": "https://docs.anthropic.com/claude-code/settings.schema.json",
+  "_comment": "Configurações padrão do time. Ajuste conforme necessidade do projeto.",
+  "permissions": {
+    "allowedTools": [
+      "Read",
+      "Write",
+      "Glob",
+      "Grep",
+      "Bash(git *)",
+      "Bash(npm test *)",
+      "Bash(npm run lint *)",
+      "Bash(npx prettier *)",
+      "Bash(pytest *)",
+      "Bash(python -m black *)",
+      "Bash(python -m ruff *)"
+    ],
+    "deny": [
+      "Read(./.env)",
+      "Read(./.env.*)",
+      "Write(./.env)",
+      "Write(./.env.*)",
+      "Write(./production.*)"
+    ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write(*.py)",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python -m black $FILEPATH 2>/dev/null || true"
+          }
+        ]
+      },
+      {
+        "matcher": "Write(*.{ts,tsx,js,jsx})",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "npx prettier --write $FILEPATH 2>/dev/null || true"
+          }
+        ]
+      }
+    ]
+  }
+}
