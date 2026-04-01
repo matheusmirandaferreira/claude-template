@@ -2,9 +2,8 @@ Relatório de status do projeto.
 
 ## Analise
 
-1. Identifique a stack de cada subprojeto pelo CLAUDE.md
-2. Liste entidades/models, rotas, páginas, testes
-3. Encontre gaps (entidade sem teste, rota sem validação)
+1. Liste entidades/models, rotas, páginas, testes
+2. Encontre gaps (entidade sem teste, rota sem validação)
 
 ```bash
 # Arquivos grandes (> 300 linhas)

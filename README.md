@@ -1,21 +1,10 @@
 # claude-config
 
-Configuração compartilhada do Claude Code para todos os projetos da empresa.
+Configuração compartilhada do Claude Code para os projetos da empresa.
 
-## Como funciona
+## O que faz
 
-O script `setup-claude.sh` **detecta automaticamente** a stack de cada subprojeto e gera `CLAUDE.md` com patterns concretos (exemplos de código, estrutura de pastas, comandos) para que o Claude Code saiba exatamente como codar naquele projeto.
-
-### Stacks suportadas
-
-| Stack | Detecta por | Tipo |
-|-------|-------------|------|
-| **FastAPI + SQLAlchemy** | `requirements.txt` ou `pyproject.toml` com `fastapi` | backend |
-| **Laravel** | `artisan` + `composer.json` com `laravel` | backend |
-| **Express + TypeORM** | `package.json` com `express` | backend |
-| **NestJS + TypeORM** | `package.json` com `@nestjs/core` | backend |
-| **PHP genérico** | `composer.json` sem laravel | backend |
-| **React + Vite + TanStack** | `package.json` com `react` | frontend |
+O script `setup-claude.sh` instala **apenas** os slash commands e settings do Claude Code no projeto. Ele **não toca** em `CLAUDE.md` — isso é responsabilidade de cada projeto.
 
 ## Instalação
 
@@ -28,25 +17,72 @@ cd ~/projetos/meu-projeto
 ~/claude-config/setup-claude.sh
 ```
 
-O setup vai:
-- Detectar as stacks (ex: `backend/` é Express, `frontend/` é React)
-- Gerar `CLAUDE.md` raiz com regras universais
-- Gerar `CLAUDE.md` em cada subprojeto com patterns da stack
-- Instalar slash commands em `.claude/commands/`
-- Instalar `settings.json` com permissões
-- Criar templates em `docs/`
+Resultado:
+```
+meu-projeto/
+├── .claude/
+│   ├── settings.json       ← Permissões
+│   └── commands/            ← 10 slash commands
+│       ├── feature.md
+│       ├── fix.md
+│       ├── improve.md
+│       ├── crud.md
+│       ├── review.md
+│       ├── test.md
+│       ├── migrate.md
+│       ├── security-audit.md
+│       ├── status.md
+│       └── pre-deploy.md
+```
+
+## CLAUDE.md — responsabilidade do projeto
+
+O `CLAUDE.md` é o arquivo mais importante. Ele define os padrões, patterns e comandos da stack do projeto. Cada projeto cria e mantém o seu.
+
+### Templates disponíveis
+
+Use como ponto de partida, copie e **adapte** ao seu projeto:
+
+```bash
+# Ver templates disponíveis
+ls ~/claude-config/stacks/
+
+# Copiar o que precisa
+cp ~/claude-config/stacks/node-express.md ./backend/CLAUDE.md
+cp ~/claude-config/stacks/react.md ./frontend/CLAUDE.md
+
+# Projeto single-dir (ex: Laravel)
+cp ~/claude-config/stacks/laravel.md ./CLAUDE.md
+
+# EDITE para refletir o projeto real
+```
+
+| Template | Stack |
+|----------|-------|
+| `fastapi.md` | FastAPI + SQLAlchemy + PostgreSQL |
+| `laravel.md` | Laravel + Eloquent |
+| `node-express.md` | Express + TypeORM |
+| `nestjs.md` | NestJS + TypeORM |
+| `php.md` | PHP genérico |
+| `react.md` | React + Vite + TanStack + shadcn/ui |
+
+Cada template inclui: estrutura de pastas, ordem de implementação, patterns com código, regras e comandos de terminal.
+
+### O que colocar no CLAUDE.md
+
+Um bom CLAUDE.md responde estas perguntas para o Claude Code:
+- Qual a stack exata? (versões, libs, ORM)
+- Qual a estrutura de pastas?
+- Em que ordem implementar? (model → service → route → test)
+- Como é o pattern de cada camada? (com código de exemplo)
+- O que NUNCA fazer? (regras e proibições)
+- Quais os comandos de terminal? (dev, test, lint, migrate)
 
 ## Atualização
 
 ```bash
-# Atualizar commands (mais comum)
-~/claude-config/setup-claude.sh --commands --force
-
-# Reconstruir CLAUDE.md (quando mudar de stack ou atualizar patterns)
-~/claude-config/setup-claude.sh --rebuild
-
-# Ver o que faria sem alterar
-~/claude-config/setup-claude.sh --dry-run
+# Atualizar commands (quando houver mudança no repo central)
+~/claude-config/setup-claude.sh --force
 ```
 
 ## Slash Commands
@@ -64,58 +100,33 @@ O setup vai:
 | `/status` | Relatório de saúde do projeto |
 | `/pre-deploy` | Checklist pré-deploy |
 
-Os commands são **stack-agnostic** — definem o processo (planeje → implemente → teste → documente). Os patterns específicos vêm do `CLAUDE.md` do subprojeto.
+Os commands definem **processo** (planeje → implemente → teste → documente). Os patterns específicos da stack vêm do `CLAUDE.md` do projeto.
 
-## O que commitar
+## Commitar no projeto
 
 ```bash
-git add .claude/ CLAUDE.md docs/
-# E os CLAUDE.md dos subprojetos
-git add backend/CLAUDE.md frontend/CLAUDE.md
+git add .claude/ CLAUDE.md
 git commit -m "chore: add claude config"
 ```
 
-## Arquitetura
+## Estrutura deste repo
 
 ```
-claude-config/              ← Este repo (central)
-├── setup-claude.sh         ← Script de instalação
-├── settings.json           ← Permissões
-├── commands/               ← Slash commands (processo)
-├── stacks/                 ← Patterns por stack (código)
-│   ├── fastapi.md
-│   ├── laravel.md
-│   ├── node-express.md
-│   ├── nestjs.md
-│   ├── php.md
-│   └── react.md
-└── docs/                   ← Templates de documentação
-
-seu-projeto/                ← Após rodar setup
-├── CLAUDE.md               ← Gerado (regras universais)
-├── .claude/
-│   ├── settings.json       ← Copiado
-│   └── commands/           ← Copiado
-├── backend/
-│   └── CLAUDE.md           ← Gerado pela stack detectada
-├── frontend/
-│   └── CLAUDE.md           ← Gerado pela stack detectada
-└── docs/                   ← Templates
+claude-config/
+├── setup-claude.sh        ← Script (só copia commands + settings)
+├── settings.json          ← Permissões do Claude Code
+├── commands/              ← Slash commands (processo)
+└── stacks/                ← Templates de CLAUDE.md (referência)
+    ├── fastapi.md
+    ├── laravel.md
+    ├── node-express.md
+    ├── nestjs.md
+    ├── php.md
+    └── react.md
 ```
-
-**Separação de responsabilidades:**
-- `CLAUDE.md` raiz → regras universais + workflows
-- `subprojeto/CLAUDE.md` → patterns da stack com código real
-- `.claude/commands/` → processo (o quê fazer, em que ordem)
-
-## Adicionar nova stack
-
-1. Crie `stacks/minha-stack.md` seguindo o formato (metadata + patterns)
-2. Adicione detecção no `setup-claude.sh` na função `detect_in()`
-3. Teste com `--dry-run`
 
 ## Contribuindo
 
-- Alterar um command → PR neste repo → time roda `--commands --force`
-- Alterar patterns de stack → PR neste repo → time roda `--rebuild`
-- Alterar algo só no projeto → edite direto no repo do projeto
+- **Alterar um command** → PR neste repo → time roda `setup-claude.sh --force`
+- **Novo template de stack** → crie em `stacks/` e abra PR
+- **Alterar CLAUDE.md de um projeto** → edite direto no repo do projeto
