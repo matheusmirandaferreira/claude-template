@@ -21,26 +21,22 @@ Seguimos o padrão monorepo com separação frontend/backend:
 
 - `main` — produção, sempre estável
 - `develop` — integração, base para features
-- `feature/<ticket>-<descricao>` — novas funcionalidades
-- `fix/<ticket>-<descricao>` — correções de bugs
-- `hotfix/<descricao>` — correções urgentes em produção
-- `chore/<descricao>` — tarefas de manutenção
+- `feature/<ticket>` — novas funcionalidades
+- `fix/<ticket>` — correções de bugs
+- `hotfix/<ticket>` — correções urgentes em produção
+- `chore/<ticket>` — tarefas de manutenção
 
 ### Commits
 
 Seguimos Conventional Commits. Formato:
 
 ```
-<tipo>(<escopo>): <descrição curta>
+<ticket> - <descrição curta>
 
 <corpo opcional>
 
 <footer opcional>
 ```
-
-Tipos: `feat`, `fix`, `docs`, `style`, `refactor`, `test`, `chore`, `ci`, `perf`, `build`.
-
-Escopo é o módulo afetado (ex: `auth`, `api`, `ui`).
 
 ### Pull Requests
 

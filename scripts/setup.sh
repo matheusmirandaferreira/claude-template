@@ -98,21 +98,38 @@ if [ -f "$CONFIG_DIR/.claude/settings.json" ]; then
     fi
 fi
 
-# ─── Instala CLAUDE.md ─────────────────────────────────────────────────────
+# ─── Instala .claude/commands ─────────────────────────────────────────────
+if [ -d "$CONFIG_DIR/.claude/commands" ]; then
+    info "Instalando commands..."
+    mkdir -p "$TARGET_DIR/.claude/commands"
+
+    for cmd_file in "$CONFIG_DIR/.claude/commands"/*.md; do
+        [ -f "$cmd_file" ] || continue
+        cmd_name="$(basename "$cmd_file")"
+        dest="$TARGET_DIR/.claude/commands/$cmd_name"
+        if [ -f "$dest" ]; then
+            warn "Command $cmd_name já existe no projeto, pulando."
+        else
+            install_item "$cmd_file" "$dest"
+        fi
+    done
+fi
+
+# ─── Instala CLAUDE.md como CLAUDE.local.md ───────────────────────────────
 if [ -f "$CONFIG_DIR/CLAUDE.md" ]; then
-    info "Instalando CLAUDE.md..."
-    if [ -f "$TARGET_DIR/CLAUDE.md" ]; then
-        warn "CLAUDE.md já existe no projeto."
+    info "Instalando CLAUDE.md como CLAUDE.local.md..."
+    if [ -f "$TARGET_DIR/CLAUDE.local.md" ]; then
+        warn "CLAUDE.local.md já existe no projeto."
         read -p "Sobrescrever? Merge manual recomendado. (y/N) " -n 1 -r
         echo
         if [[ $REPLY =~ ^[Yy]$ ]]; then
-            backup_if_exists "$TARGET_DIR/CLAUDE.md"
-            install_item "$CONFIG_DIR/CLAUDE.md" "$TARGET_DIR/CLAUDE.md"
+            backup_if_exists "$TARGET_DIR/CLAUDE.local.md"
+            install_item "$CONFIG_DIR/CLAUDE.md" "$TARGET_DIR/CLAUDE.local.md"
         else
-            info "Mantendo CLAUDE.md existente."
+            info "Mantendo CLAUDE.local.md existente."
         fi
     else
-        install_item "$CONFIG_DIR/CLAUDE.md" "$TARGET_DIR/CLAUDE.md"
+        install_item "$CONFIG_DIR/CLAUDE.md" "$TARGET_DIR/CLAUDE.local.md"
     fi
 fi
 
