@@ -1,132 +1,191 @@
-# claude-config
+# Claude Team Config
 
-Configuração compartilhada do Claude Code para os projetos da empresa.
+Template de configuracao padronizada do Claude Code para projetos vibe coding.
 
-## O que faz
+Clone, rode o setup no seu projeto e tenha skills, commands e convencoes prontos para uso.
 
-O script `setup-claude.sh` instala **apenas** os slash commands e settings do Claude Code no projeto. Ele **não toca** em `CLAUDE.md` — isso é responsabilidade de cada projeto.
+## Fluxo de trabalho
 
-## Instalação
+```
+          ┌─────────────────────────────────────────────────┐
+          │              CICLO VIBE CODING                   │
+          └─────────────────────────────────────────────────┘
+
+   1. SETUP                    2. DESENVOLVER               3. ENTREGAR
+   ──────────                  ──────────────               ──────────
+   setup.sh no projeto         /feature, /fix, /improve     /commit
+   Skills + commands           Claude planeja e executa      /code-review
+   instalados automatico       Testes rodam a cada passo     /pr-description
+                                                             /pre-deploy
+```
+
+### 1. Setup do projeto
 
 ```bash
-# 1. Clone uma vez
-git clone https://github.com/EMPRESA/claude-config.git ~/claude-config
-
-# 2. No seu projeto
-cd ~/projetos/meu-projeto
-~/claude-config/setup-claude.sh
+git clone https://github.com/<sua-org>/claude-team-config.git /tmp/ctc
+/tmp/ctc/scripts/setup.sh /caminho/do/seu/projeto
 ```
 
-Resultado:
+O setup detecta as subpastas do projeto e sugere commands automaticamente:
+
 ```
-meu-projeto/
+i  Repos detectados — aceite ou recuse cada sugestao:
+
+    meuapp_frontend              → /front  "Aplicacao frontend"  (Y/n)
+    meuapp_backend               → /back   "API backend"         (Y/n)
+```
+
+Resultado: skills, commands, settings e convencoes instalados no projeto.
+
+### 2. Desenvolvimento com commands
+
+Abra o Claude Code no projeto e use os commands para guiar o trabalho:
+
+| Command | O que faz |
+|---|---|
+| `/feature <descricao>` | Planeja, implementa (backend-first), testa e documenta uma feature |
+| `/fix <descricao>` | Diagnostica, aplica correcao minima, escreve teste de regressao |
+| `/improve <descricao>` | Analisa impacto, refatora incrementalmente, valida com testes |
+| `/review` | Revisao com checklist de seguranca, corretude, qualidade e performance |
+
+Cada command segue um processo estruturado — o Claude planeja antes de codar, testa a cada passo, e documenta ao final.
+
+### 3. Navegacao entre repos
+
+Commands gerados pelo setup para monorepos:
+
+| Command | O que faz |
+|---|---|
+| `/front` | Inspeciona o repo frontend (estrutura, deps, git status) |
+| `/back` | Inspeciona o repo backend |
+| `/status` | Visao geral de todos os repos (branch, diff, ultimo commit) |
+| `/logs` | Logs git recentes de todos os repos |
+
+Cada command de repo aceita sub-comandos: `/front status`, `/front deps`, `/front run dev`.
+
+### 4. Qualidade e entrega
+
+| Skill | Quando usar |
+|---|---|
+| `/commit` | Gera mensagem de commit no padrao Conventional Commits |
+| `/code-review` | Revisao automatizada antes de abrir PR |
+| `/pr-description` | Gera descricao de PR com contexto, mudancas e checklist |
+| `/test-gen` | Gera testes unitarios e de integracao para codigo existente |
+| `/pre-deploy` | Checklist completo: testes, lint, build, seguranca, migrations, docs |
+
+### 5. Ferramentas de suporte
+
+| Skill | Quando usar |
+|---|---|
+| `/debug` | Investigacao guiada de bugs com analise de causa raiz |
+| `/refactor` | Refatoracao com analise de impacto e validacao incremental |
+| `/doc-gen` | Gera documentacao tecnica (JSDoc, docstrings, README, API docs) |
+| `/security-scan` | Analise de vulnerabilidades (OWASP Top 10, secrets, deps) |
+
+## Estrutura
+
+```
+claude-team-config/
 ├── .claude/
-│   ├── settings.json       ← Permissões
-│   └── commands/            ← 10 slash commands
-│       ├── feature.md
-│       ├── fix.md
-│       ├── improve.md
-│       ├── crud.md
-│       ├── review.md
-│       ├── test.md
-│       ├── migrate.md
-│       ├── security-audit.md
-│       ├── status.md
-│       └── pre-deploy.md
+│   ├── skills/                  # Workflows inteligentes (invocados via /nome)
+│   │   ├── code-review/         # Revisao de codigo
+│   │   ├── commit/              # Commits padronizados
+│   │   ├── pr-description/      # Descricao de PR
+│   │   ├── test-gen/            # Geracao de testes
+│   │   ├── refactor/            # Refatoracao guiada
+│   │   ├── doc-gen/             # Documentacao
+│   │   ├── debug/               # Investigacao de bugs
+│   │   └── security-scan/       # Analise de seguranca
+│   ├── commands/                # Atalhos de projeto (gerados pelo setup)
+│   │   ├── feature.md           # /feature — implementa feature
+│   │   ├── fix.md               # /fix — corrige bug
+│   │   ├── improve.md           # /improve — aplica melhoria
+│   │   ├── review.md            # /review — revisao de codigo
+│   │   └── pre-deploy.md        # /pre-deploy — checklist de deploy
+│   └── settings.json            # Permissoes, hooks e plugins
+├── CLAUDE.md                    # Convencoes do time
+├── scripts/
+│   └── setup.sh                 # Integra configs em projeto existente
+└── README.md
 ```
 
-## CLAUDE.md — responsabilidade do projeto
+## Instalacao
 
-O `CLAUDE.md` é o arquivo mais importante. Ele define os padrões, patterns e comandos da stack do projeto. Cada projeto cria e mantém o seu.
-
-### Templates disponíveis
-
-Use como ponto de partida, copie e **adapte** ao seu projeto:
+### Setup automatico (recomendado)
 
 ```bash
-# Ver templates disponíveis
-ls ~/claude-config/stacks/
+# Clone o template
+git clone https://github.com/<sua-org>/claude-team-config.git /tmp/ctc
 
-# Copiar o que precisa
-cp ~/claude-config/stacks/node-express.md ./backend/CLAUDE.md
-cp ~/claude-config/stacks/react.md ./frontend/CLAUDE.md
-
-# Projeto single-dir (ex: Laravel)
-cp ~/claude-config/stacks/laravel.md ./CLAUDE.md
-
-# EDITE para refletir o projeto real
+# Rode no seu projeto
+/tmp/ctc/scripts/setup.sh /caminho/do/projeto
 ```
 
-| Template | Stack |
-|----------|-------|
-| `fastapi.md` | FastAPI + SQLAlchemy + PostgreSQL |
-| `laravel.md` | Laravel + Eloquent |
-| `node-express.md` | Express + TypeORM |
-| `nestjs.md` | NestJS + TypeORM |
-| `php.md` | PHP genérico |
-| `react.md` | React + Vite + TanStack + shadcn/ui |
+O setup:
+1. Instala skills e commands no `.claude/` do projeto
+2. Copia `settings.json` com permissoes e hooks padrao
+3. Detecta subpastas e sugere commands de navegacao
+4. Cria `CLAUDE.local.md` para overrides pessoais
+5. Atualiza `.gitignore`
 
-Cada template inclui: estrutura de pastas, ordem de implementação, patterns com código, regras e comandos de terminal.
-
-### O que colocar no CLAUDE.md
-
-Um bom CLAUDE.md responde estas perguntas para o Claude Code:
-- Qual a stack exata? (versões, libs, ORM)
-- Qual a estrutura de pastas?
-- Em que ordem implementar? (model → service → route → test)
-- Como é o pattern de cada camada? (com código de exemplo)
-- O que NUNCA fazer? (regras e proibições)
-- Quais os comandos de terminal? (dev, test, lint, migrate)
-
-## Atualização
+### Git submodule
 
 ```bash
-# Atualizar commands (quando houver mudança no repo central)
-~/claude-config/setup-claude.sh --force
+git submodule add https://github.com/<sua-org>/claude-team-config.git .claude-team-config
+.claude-team-config/scripts/setup.sh --link
 ```
 
-## Slash Commands
+### Manual
 
-| Comando | O que faz |
-|---------|-----------|
-| `/feature` | Implementa feature com plano obrigatório |
-| `/fix` | Corrige bug com teste de regressão |
-| `/improve` | Refatora com análise de impacto |
-| `/crud` | Gera CRUD completo (back + front + tests) |
-| `/review` | Code review com checklist de segurança |
-| `/test` | Roda testes e gera relatório |
-| `/migrate` | Gerencia migrations |
-| `/security-audit` | Auditoria de segurança |
-| `/status` | Relatório de saúde do projeto |
-| `/pre-deploy` | Checklist pré-deploy |
+Copie `.claude/` e `CLAUDE.md` para a raiz do seu projeto.
 
-Os commands definem **processo** (planeje → implemente → teste → documente). Os patterns específicos da stack vêm do `CLAUDE.md` do projeto.
+## Configuracao
 
-## Commitar no projeto
+### Settings padrao
+
+O `settings.json` inclui:
+
+- **Plan mode** por default — Claude apresenta o plano antes de executar
+- **Protecao de secrets** — bloqueia leitura/escrita de `.env` e configs de producao
+- **Auto-formatacao** — roda Black (Python) e Prettier (JS/TS) apos cada escrita
+- **Plugins** — frontend-design, superpowers, code-review, ui-ux-pro-max
+
+### Customizacao por projeto
+
+Preencha a secao `## Project-specific` no `CLAUDE.md` com detalhes do seu stack.
+
+Crie `CLAUDE.local.md` (gitignored) para preferencias pessoais.
+
+## Atualizando
 
 ```bash
-git add .claude/ CLAUDE.md
-git commit -m "chore: add claude config"
+# Se usou submodule
+git submodule update --remote .claude-team-config
+.claude-team-config/scripts/setup.sh --link
+
+# Se copiou manualmente
+git pull no template e re-rode setup.sh
 ```
 
-## Estrutura deste repo
+## Criando skills customizadas
 
-```
-claude-config/
-├── setup-claude.sh        ← Script (só copia commands + settings)
-├── settings.json          ← Permissões do Claude Code
-├── commands/              ← Slash commands (processo)
-└── stacks/                ← Templates de CLAUDE.md (referência)
-    ├── fastapi.md
-    ├── laravel.md
-    ├── node-express.md
-    ├── nestjs.md
-    ├── php.md
-    └── react.md
+```bash
+mkdir -p .claude/skills/minha-skill
+cat > .claude/skills/minha-skill/SKILL.md << 'EOF'
+---
+name: minha-skill
+description: Descricao do que faz e quando usar.
+---
+
+# Minha Skill
+
+Instrucoes aqui...
+EOF
 ```
 
 ## Contribuindo
 
-- **Alterar um command** → PR neste repo → time roda `setup-claude.sh --force`
-- **Novo template de stack** → crie em `stacks/` e abra PR
-- **Alterar CLAUDE.md de um projeto** → edite direto no repo do projeto
+1. Crie uma branch: `feature/nome-da-skill`
+2. Adicione ou edite skills em `.claude/skills/`
+3. Teste localmente rodando o Claude Code no projeto
+4. Abra um PR com descricao do que a skill faz e quando dispara

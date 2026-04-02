@@ -21,9 +21,8 @@ Implemente a seguinte feature: $ARGUMENTS
 - Rode os testes existentes para garantir que nada quebrou
 
 ### 4. Finalização
-- Atualize `docs/api-contracts.md` se a API mudou
-- Atualize `docs/changelog.md`
-- Commit: `feat: [descrição]`
+- Atualize `docs/<FEATURE>.md`
+- Commit: `<ID da tarefa / feature> - [descrição]`
 
 ## Checklist
 - [ ] Input validado em todas as rotas

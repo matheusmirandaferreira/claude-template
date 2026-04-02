@@ -1,0 +1,57 @@
+{
+  "permissions": {
+    "allow": [
+      "Always in plan mode"
+    ],
+    "deny": [
+      "Read(./.env)",
+      "Read(./.env.*)",
+      "Write(./.env)",
+      "Write(./.env.*)",
+      "Write(./production.*)"
+    ],
+    "defaultMode": "plan",
+    "allowedTools": [
+      "Read",
+      "Write",
+      "Glob",
+      "Grep",
+      "Bash(git *)",
+      "Bash(npm test *)",
+      "Bash(npm run lint *)",
+      "Bash(npx prettier *)",
+      "Bash(pytest *)",
+      "Bash(python -m black *)",
+      "Bash(python -m ruff *)"
+    ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write(*.py)",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python -m black $FILEPATH 2>/dev/null || true"
+          }
+        ]
+      },
+      {
+        "matcher": "Write(*.{ts,tsx,js,jsx})",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "npx prettier --write $FILEPATH 2>/dev/null || true"
+          }
+        ]
+      }
+    ]
+  },
+  "enabledPlugins": {
+    "frontend-design@claude-plugins-official": true,
+    "superpowers@claude-plugins-official": true,
+    "code-review@claude-plugins-official": true,
+    "ui-ux-pro-max@ui-ux-pro-max-skill": true
+  },
+  "_comment": "Configurações padrão do time. Ajuste conforme necessidade do projeto."
+}

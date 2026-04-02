@@ -1,8 +1,12 @@
+
 Faça uma revisão de código: $ARGUMENTS
 
 Se $ARGUMENTS estiver vazio, revise staged files ou último commit.
 
 ## Checklist
+
+### Contexto
+- Faça análise de qualidade de código, segurança ou performance atendento as etapas a seguir.
 
 ### Segurança
 - [ ] Inputs validados
