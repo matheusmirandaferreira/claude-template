@@ -158,25 +158,67 @@ for dir in "$TARGET_DIR"/*/; do
     DETECTED_REPOS+=("$dirname")
 done
 
+# Funções de inferência
+infer_alias() {
+    local dirname="$1"
+    local project="$2"
+    # Remove prefixo do projeto
+    local suffix="${dirname#${project}_}"
+    # Se não mudou, usa o dirname completo
+    [ "$suffix" = "$dirname" ] && suffix="$dirname"
+    # Mapeia sufixos comuns para aliases curtos
+    case "$suffix" in
+        frontend|front) echo "front" ;;
+        backend|back)   echo "back" ;;
+        docs|documentation) echo "docs" ;;
+        api)            echo "api" ;;
+        mobile)         echo "mobile" ;;
+        web)            echo "web" ;;
+        infra|infrastructure) echo "infra" ;;
+        shared|common)  echo "shared" ;;
+        *)              echo "$suffix" ;;
+    esac
+}
+
+infer_description() {
+    local alias="$1"
+    case "$alias" in
+        front*) echo "Aplicação frontend" ;;
+        back*)  echo "API backend" ;;
+        docs*)  echo "Documentação" ;;
+        api)    echo "Serviço API" ;;
+        mobile) echo "Aplicação mobile" ;;
+        web)    echo "Aplicação web" ;;
+        infra)  echo "Infraestrutura" ;;
+        shared|common) echo "Código compartilhado" ;;
+        *)      echo "Repositório $alias" ;;
+    esac
+}
+
+COMMANDS=()
+
 if [ ${#DETECTED_REPOS[@]} -gt 0 ]; then
     echo ""
-    info "Repos detectados no projeto:"
+    info "Repos detectados — aceite ou recuse cada sugestão:"
+    echo ""
     for repo in "${DETECTED_REPOS[@]}"; do
-        echo "    - $repo"
+        alias="$(infer_alias "$repo" "$PROJECT_NAME")"
+        desc="$(infer_description "$alias")"
+        printf "    %-30s → /%s  \"%s\"" "$repo" "$alias" "$desc"
+        read -p "  (Y/n) " -n 1 -r
+        echo
+        if [[ ! $REPLY =~ ^[Nn]$ ]]; then
+            COMMANDS+=("$alias|$repo|$desc")
+            ok "Adicionado: /$alias → $repo/"
+        fi
     done
 fi
 
 echo ""
-echo "  Defina os repos do projeto (um por linha, vazio para encerrar)."
+echo "  Adicionar mais repos? (um por linha, vazio para encerrar)"
 echo "  Formato: <alias> <path_relativo> <descricao>"
 echo ""
-echo "  Exemplos:"
-echo "    front ${PROJECT_NAME}_frontend    Aplicação frontend React"
-echo "    back  ${PROJECT_NAME}_backend     API backend Node.js"
-echo "    docs  ${PROJECT_NAME}_docs        Documentação"
-echo ""
 
-COMMANDS=()
 while true; do
     read -p "  > " cmd_alias cmd_path cmd_desc_rest
     [ -z "$cmd_alias" ] && break
