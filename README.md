@@ -22,7 +22,7 @@ Clone, rode o setup no seu projeto e tenha skills, commands e convencoes prontos
 ### 1. Setup do projeto
 
 ```bash
-git clone https://github.com/<sua-org>/claude-team-config.git /tmp/ctc
+git clone https://github.com/matheusmirandaferreira/claude-template.git /tmp/ctc
 /tmp/ctc/scripts/setup.sh /caminho/do/seu/projeto
 ```
 
@@ -115,7 +115,7 @@ claude-team-config/
 
 ```bash
 # Clone o template
-git clone https://github.com/<sua-org>/claude-team-config.git /tmp/ctc
+git clone https://github.com/matheusmirandaferreira/claude-template.git /tmp/ctc
 
 # Rode no seu projeto
 /tmp/ctc/scripts/setup.sh /caminho/do/projeto
@@ -131,7 +131,7 @@ O setup:
 ### Git submodule
 
 ```bash
-git submodule add https://github.com/<sua-org>/claude-team-config.git .claude-team-config
+git submodule add https://github.com/matheusmirandaferreira/claude-template.git .claude-team-config
 .claude-team-config/scripts/setup.sh --link
 ```
 
