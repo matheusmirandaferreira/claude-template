@@ -51,7 +51,8 @@
     "frontend-design@claude-plugins-official": true,
     "superpowers@claude-plugins-official": true,
     "code-review@claude-plugins-official": true,
-    "ui-ux-pro-max@ui-ux-pro-max-skill": true
+    "ui-ux-pro-max@ui-ux-pro-max-skill": true,
+    "feature-dev@claude-plugins-official": true
   },
   "_comment": "Configurações padrão do time. Ajuste conforme necessidade do projeto."
 }

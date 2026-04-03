@@ -148,7 +148,7 @@ O `settings.json` inclui:
 - **Plan mode** por default — Claude apresenta o plano antes de executar
 - **Protecao de secrets** — bloqueia leitura/escrita de `.env` e configs de producao
 - **Auto-formatacao** — roda Black (Python) e Prettier (JS/TS) apos cada escrita
-- **Plugins** — frontend-design, superpowers, code-review, ui-ux-pro-max
+- **Plugins** — frontend-design, superpowers, code-review, ui-ux-pro-max, feature-dev
 
 ### Customizacao por projeto
 
