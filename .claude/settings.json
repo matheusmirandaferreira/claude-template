@@ -1,8 +1,9 @@
 {
+  "env": {
+    "ENABLE_LSP_TOOL": "1"
+  },
   "permissions": {
-    "allow": [
-      "Always in plan mode"
-    ],
+    "allow": ["Always in plan mode"],
     "deny": [
       "Read(./.env)",
       "Read(./.env.*)",
