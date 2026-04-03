@@ -52,7 +52,10 @@
     "superpowers@claude-plugins-official": true,
     "code-review@claude-plugins-official": true,
     "ui-ux-pro-max@ui-ux-pro-max-skill": true,
-    "feature-dev@claude-plugins-official": true
+    "feature-dev@claude-plugins-official": true,
+    "typescript-lsp@claude-plugins-official": true,
+    "pyright-lsp@claude-plugins-official": true,
+    "php-lsp@claude-plugins-official": true
   },
   "_comment": "Configurações padrão do time. Ajuste conforme necessidade do projeto."
 }
