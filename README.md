@@ -2,7 +2,7 @@
 
 Template de configuracao padronizada do Claude Code para projetos vibe coding.
 
-Clone, rode o setup no seu projeto e tenha skills, commands e convencoes prontos para uso.
+Instale globalmente uma vez e tenha skills, commands e convencoes prontos em todos os projetos.
 
 ## Fluxo de trabalho
 
@@ -13,20 +13,88 @@ Clone, rode o setup no seu projeto e tenha skills, commands e convencoes prontos
 
    1. SETUP                    2. DESENVOLVER               3. ENTREGAR
    ──────────                  ──────────────               ──────────
-   setup.sh no projeto         /feature, /fix, /improve     /commit
-   Skills + commands           Claude planeja e executa      /code-review
-   instalados automatico       Testes rodam a cada passo     /pr-description
+   --global (1x na máquina)    /feature, /fix, /improve     /commit
+   project (1x por projeto)    Claude planeja e executa      /code-review
+                               Testes rodam a cada passo     /pr-description
                                                              /pre-deploy
 ```
 
-### 1. Setup do projeto
+## Instalacao
+
+### 1. Setup global (uma vez por maquina)
+
+Instala skills, commands, plugins e settings em `~/.claude/` — disponivel em todos os projetos.
 
 ```bash
-git clone https://github.com/matheusmirandaferreira/claude-template.git /tmp/ctc
-/tmp/ctc/scripts/setup.sh /caminho/do/seu/projeto
+git clone https://github.com/matheusmirandaferreira/claude-template.git ~/claude-config
+~/claude-config/scripts/setup.sh --global
 ```
 
-O setup detecta automaticamente o tipo de projeto:
+### 2. Setup por projeto (uma vez por projeto)
+
+Instala hooks de formatacao, CLAUDE.local.md e commands de navegacao (monorepo).
+
+```bash
+~/claude-config/scripts/setup.sh /caminho/do/projeto
+```
+
+### 3. Migracao de projetos antigos
+
+Se o projeto ja tinha o setup antigo (per-project), limpe as duplicatas:
+
+```bash
+~/claude-config/scripts/setup.sh --clean-project /caminho/do/projeto
+```
+
+### Setup completo (maquina nova)
+
+```bash
+git clone https://github.com/matheusmirandaferreira/claude-template.git ~/claude-config
+~/claude-config/scripts/setup.sh --global
+~/claude-config/scripts/setup.sh /caminho/do/projeto
+```
+
+### Opcoes
+
+| Flag | Descricao |
+|------|-----------|
+| `--global` | Instala recursos genericos em `~/.claude/` |
+| `--link` | Usa symlinks em vez de copias (skills e commands) |
+| `--clean-project /path` | Remove duplicatas genericas de um projeto |
+| `--help` | Mostra ajuda |
+
+### Git submodule (desenvolvimento com symlinks)
+
+```bash
+git submodule add https://github.com/matheusmirandaferreira/claude-template.git .claude-team-config
+.claude-team-config/scripts/setup.sh --global --link
+```
+
+## O que e instalado onde
+
+### Global (`~/.claude/`) — todos os projetos
+
+| Recurso | Destino |
+|---------|---------|
+| 8 skills (commit, code-review, debug, etc.) | `~/.claude/skills/` |
+| 5 commands (feature, fix, improve, etc.) | `~/.claude/commands/` |
+| Plugins (superpowers, frontend-design, LSPs, etc.) | `~/.claude/settings.json` |
+| Env vars, permissions baseline, effortLevel | `~/.claude/settings.json` |
+
+### Por projeto (`.claude/` do projeto) — especifico
+
+| Recurso | Destino |
+|---------|---------|
+| Hooks de formatacao (Black, Prettier) | `.claude/settings.json` |
+| Commands de monorepo (/<alias>, /status, /logs) | `.claude/commands/` |
+| Skills agregadas dos sub-projetos (monorepo) | `.claude/skills/<alias>-<skill>/` |
+| Agents agregados dos sub-projetos (monorepo) | `.claude/agents/<alias>-<agent>.md` |
+| Commands agregados dos sub-projetos (monorepo) | `.claude/commands/<alias>-<command>.md` |
+| Convencoes do time | `CLAUDE.local.md` |
+
+## Deteccao de tipo de projeto
+
+O setup por projeto detecta automaticamente:
 
 **Monorepo** (2+ pastas com projeto):
 ```
@@ -49,36 +117,36 @@ i  Tipo de projeto detectado: MONOLITO
 i  Projeto monolito — commands de navegacao nao sao necessarios.
 ```
 
-Resultado: skills, commands, settings e convencoes instalados no projeto.
+### Agregacao de recursos (monorepo)
 
-### 2. Desenvolvimento com commands
+Em monorepos, se os sub-projetos tiverem `.claude/` com skills, commands ou agents, o setup oferece agregar tudo no `.claude/` raiz com prefixo do alias:
 
-Abra o Claude Code no projeto e use os commands para guiar o trabalho:
+```
+i  Sub-projetos com recursos Claude detectados:
+i    /api (backend/) — 3 skills, 1 agents
+i    /front (frontend/) — 2 skills, 1 commands
+
+  Agregar recursos dos sub-projetos ao .claude/ raiz? (Y/n)
+
+✓  Copied: .claude/skills/api-fastapi-crud
+✓  Copied: .claude/skills/api-sqlalchemy-patterns
+✓  Copied: .claude/agents/api-coder.md
+✓  Copied: .claude/skills/front-tanstack-query
+```
+
+Isso garante que ao trabalhar no nivel raiz do monorepo, todas as skills especializadas dos sub-projetos ficam acessiveis (ex: `/api-fastapi-crud`, `/front-tanstack-query`).
+
+## Commands e skills disponiveis
+
+### Desenvolvimento
 
 | Command | O que faz |
 |---|---|
 | `/feature <descricao>` | Planeja, implementa (backend-first), testa e documenta uma feature |
 | `/fix <descricao>` | Diagnostica, aplica correcao minima, escreve teste de regressao |
 | `/improve <descricao>` | Analisa impacto, refatora incrementalmente, valida com testes |
-| `/review` | Revisao com checklist de seguranca, corretude, qualidade e performance |
 
-Cada command segue um processo estruturado — o Claude planeja antes de codar, testa a cada passo, e documenta ao final.
-
-### 3. Navegacao entre repos (monorepo)
-
-Commands gerados pelo setup para monorepos — os aliases sao definidos pelo usuario durante a instalacao:
-
-| Command | O que faz |
-|---|---|
-| `/<alias>` | Inspeciona o repo (estrutura, deps, git status) |
-| `/status` | Visao geral de todos os repos (branch, diff, ultimo commit) |
-| `/logs` | Logs git recentes de todos os repos |
-
-Cada command de repo aceita sub-comandos: `/<alias> status`, `/<alias> deps`, `/<alias> run dev`.
-
-> Em projetos monolito, commands de navegacao nao sao gerados.
-
-### 4. Qualidade e entrega
+### Qualidade e entrega
 
 | Skill | Quando usar |
 |---|---|
@@ -88,7 +156,7 @@ Cada command de repo aceita sub-comandos: `/<alias> status`, `/<alias> deps`, `/
 | `/test-gen` | Gera testes unitarios e de integracao para codigo existente |
 | `/pre-deploy` | Checklist completo: testes, lint, build, seguranca, migrations, docs |
 
-### 5. Ferramentas de suporte
+### Ferramentas de suporte
 
 | Skill | Quando usar |
 |---|---|
@@ -97,12 +165,22 @@ Cada command de repo aceita sub-comandos: `/<alias> status`, `/<alias> deps`, `/
 | `/doc-gen` | Gera documentacao tecnica (JSDoc, docstrings, README, API docs) |
 | `/security-scan` | Analise de vulnerabilidades (OWASP Top 10, secrets, deps) |
 
-## Estrutura
+### Navegacao entre repos (monorepo)
+
+| Command | O que faz |
+|---|---|
+| `/<alias>` | Inspeciona o repo (estrutura, deps, git status) |
+| `/status` | Visao geral de todos os repos (branch, diff, ultimo commit) |
+| `/logs` | Logs git recentes de todos os repos |
+
+Cada command de repo aceita sub-comandos: `/<alias> status`, `/<alias> deps`, `/<alias> run dev`.
+
+## Estrutura do repo
 
 ```
-claude-team-config/
+claude-config/
 ├── .claude/
-│   ├── skills/                  # Workflows inteligentes (invocados via /nome)
+│   ├── skills/                  # Workflows inteligentes (instalados em ~/.claude/skills/)
 │   │   ├── code-review/         # Revisao de codigo
 │   │   ├── commit/              # Commits padronizados
 │   │   ├── pr-description/      # Descricao de PR
@@ -111,78 +189,47 @@ claude-team-config/
 │   │   ├── doc-gen/             # Documentacao
 │   │   ├── debug/               # Investigacao de bugs
 │   │   └── security-scan/       # Analise de seguranca
-│   ├── commands/                # Atalhos de projeto (gerados pelo setup)
-│   │   ├── feature.md           # /feature — implementa feature
-│   │   ├── fix.md               # /fix — corrige bug
-│   │   ├── improve.md           # /improve — aplica melhoria
-│   │   ├── review.md            # /review — revisao de codigo
-│   │   └── pre-deploy.md        # /pre-deploy — checklist de deploy
-│   └── settings.json            # Permissoes, hooks e plugins
-├── CLAUDE.md                    # Convencoes do time
+│   ├── commands/                # Atalhos (instalados em ~/.claude/commands/)
+│   │   ├── feature.md           # /feature
+│   │   ├── fix.md               # /fix
+│   │   ├── improve.md           # /improve
+│   │   └── pre-deploy.md        # /pre-deploy
+│   └── settings.json            # Template de settings (merged no global)
+├── CLAUDE.md                    # Template de convencoes do time
 ├── scripts/
-│   └── setup.sh                 # Integra configs em projeto existente
+│   └── setup.sh                 # Script principal (merge embutido, sem deps externas)
 └── README.md
 ```
 
-## Instalacao
-
-### Setup automatico (recomendado)
-
-```bash
-# Clone o template
-git clone https://github.com/matheusmirandaferreira/claude-template.git /tmp/ctc
-
-# Rode no seu projeto
-/tmp/ctc/scripts/setup.sh /caminho/do/projeto
-```
-
-O setup:
-1. Instala skills e commands no `.claude/` do projeto
-2. Copia `settings.json` com permissoes e hooks padrao
-3. Detecta tipo de projeto (monorepo vs monolito)
-4. Monorepo: lista pastas e pede alias para gerar commands de navegacao
-5. Monolito: pula commands de navegacao (projeto unico)
-6. Cria `CLAUDE.local.md` para overrides pessoais
-7. Atualiza `.gitignore`
-
-### Git submodule
-
-```bash
-git submodule add https://github.com/matheusmirandaferreira/claude-template.git .claude-team-config
-.claude-team-config/scripts/setup.sh --link
-```
-
-### Manual
-
-Copie `.claude/` e `CLAUDE.md` para a raiz do seu projeto.
-
 ## Configuracao
 
-### Settings padrao
+### Settings globais
 
-O `settings.json` inclui:
+O merge de settings respeita configs existentes do usuario:
 
-- **Plan mode** por default — Claude apresenta o plano antes de executar
-- **Protecao de secrets** — bloqueia leitura/escrita de `.env` e configs de producao
-- **Auto-formatacao** — roda Black (Python) e Prettier (JS/TS) apos cada escrita
-- **Plugins** — frontend-design, superpowers, code-review, ui-ux-pro-max, feature-dev
+- **Env vars**: adiciona apenas keys que nao existem
+- **Plugins**: ativa novos, nao sobrescreve `false` explicito do usuario
+- **Permissions**: une arrays sem duplicatas
+- **effortLevel**: user prevalece se ja setado
+- **Nunca toca**: `teammateMode`, hooks
 
 ### Customizacao por projeto
 
-Preencha a secao `## Project-specific` no `CLAUDE.md` com detalhes do seu stack.
+Preencha a secao `## Project-specific` no `CLAUDE.local.md` com detalhes do seu stack.
 
-Crie `CLAUDE.local.md` (gitignored) para preferencias pessoais.
+Crie `.claude/settings.local.json` (gitignored) para overrides pessoais de permissoes.
 
 ## Atualizando
 
 ```bash
-# Se usou submodule
-git submodule update --remote .claude-team-config
-.claude-team-config/scripts/setup.sh --link
+# Atualize o repo
+cd ~/claude-config && git pull
 
-# Se copiou manualmente
-git pull no template e re-rode setup.sh
+# Re-rode o global (idempotente)
+~/claude-config/scripts/setup.sh --global
 ```
+
+Com `--link`, as atualizacoes propagam automaticamente (sem re-rodar).
 
 ## Criando skills customizadas
 

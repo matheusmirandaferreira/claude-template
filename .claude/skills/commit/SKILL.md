@@ -4,6 +4,13 @@ description: Gera mensagem de commit no padrão Conventional Commits. Use quando
 allowed-tools: Bash(git *)
 ---
 
+## Branches
+
+- `<ticket>` — novas funcionalidades
+- `main` / `master` — branch de testes onde vão as tarefas aprovadas
+- `HML` - reflete o ambiente de homologação depois de aprovadas as alterações na master
+- `PROD` - reflete o ambiente de produção com a versão de HML aprovada
+
 # Commit
 
 Gera e (opcionalmente) executa um commit seguindo Conventional Commits.
