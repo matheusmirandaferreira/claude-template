@@ -133,38 +133,51 @@ if [ -f "$CONFIG_DIR/CLAUDE.md" ]; then
     fi
 fi
 
-# ─── Gera commands de projeto (atalhos para repos) ────────────────────────
-echo ""
-info "Configuração de commands (atalhos para navegação entre repos)"
-echo ""
-echo "  Seu projeto segue a estrutura:"
-echo "    ./<projeto>/<projeto>_frontend"
-echo "    ./<projeto>/<projeto>_backend"
-echo ""
+# ─── Detecção de tipo de projeto ─────────────────────────────────────────
 
-PROJECT_NAME="$(basename "$TARGET_DIR")"
-read -p "  Nome do projeto [$PROJECT_NAME]: " input_project
-PROJECT_NAME="${input_project:-$PROJECT_NAME}"
+# Marcadores que indicam que um diretório é um projeto independente
+PROJECT_MARKERS=("package.json" "composer.json" "go.mod" "Cargo.toml" "pyproject.toml" "requirements.txt" "manage.py" "artisan" "Dockerfile")
 
-# Detecta subdiretórios existentes
-DETECTED_REPOS=()
-for dir in "$TARGET_DIR"/*/; do
-    [ -d "$dir" ] || continue
-    dirname="$(basename "$dir")"
-    # Ignora diretórios de config
-    [[ "$dirname" == .* ]] && continue
-    [[ "$dirname" == "node_modules" ]] && continue
-    [[ "$dirname" == "scripts" ]] && continue
-    DETECTED_REPOS+=("$dirname")
-done
+is_project_dir() {
+    local dir="$1"
+    for marker in "${PROJECT_MARKERS[@]}"; do
+        [ -f "$dir/$marker" ] && return 0
+    done
+    return 1
+}
+
+# Diretórios ignorados na detecção
+IGNORED_DIRS="^(node_modules|vendor|__pycache__|scripts|dist|build|coverage|target|venv|\.venv|env)$"
+
+detect_project_type() {
+    local target="$1"
+    local project_dirs=0
+
+    for dir in "$target"/*/; do
+        [ -d "$dir" ] || continue
+        local dirname
+        dirname="$(basename "$dir")"
+        [[ "$dirname" == .* ]] && continue
+        [[ "$dirname" =~ $IGNORED_DIRS ]] && continue
+        is_project_dir "$dir" && ((project_dirs++)) || true
+    done
+
+    if [ "$project_dirs" -ge 2 ]; then
+        echo "monorepo"
+    else
+        echo "monolith"
+    fi
+}
 
 # Funções de inferência
+PROJECT_NAME="$(basename "$TARGET_DIR")"
+
 infer_alias() {
     local dirname="$1"
-    local project="$2"
-    # Remove prefixo do projeto
+    local project="$PROJECT_NAME"
+    # Remove prefixo do projeto (ex: meuapp_frontend → frontend)
     local suffix="${dirname#${project}_}"
-    # Se não mudou, usa o dirname completo
+    [ "$suffix" = "$dirname" ] && suffix="${dirname#${project}-}"
     [ "$suffix" = "$dirname" ] && suffix="$dirname"
     # Mapeia sufixos comuns para aliases curtos
     case "$suffix" in
@@ -176,6 +189,9 @@ infer_alias() {
         web)            echo "web" ;;
         infra|infrastructure) echo "infra" ;;
         shared|common)  echo "shared" ;;
+        socket|ws|websocket) echo "socket" ;;
+        gateway)        echo "gateway" ;;
+        worker|jobs)    echo "worker" ;;
         *)              echo "$suffix" ;;
     esac
 }
@@ -191,49 +207,110 @@ infer_description() {
         web)    echo "Aplicação web" ;;
         infra)  echo "Infraestrutura" ;;
         shared|common) echo "Código compartilhado" ;;
+        socket|ws) echo "Serviço WebSocket" ;;
+        gateway) echo "API Gateway" ;;
+        worker|jobs) echo "Worker/Jobs" ;;
         *)      echo "Repositório $alias" ;;
     esac
 }
 
-COMMANDS=()
+# ─── Gera commands de projeto (atalhos para repos) ────────────────────────
 
-if [ ${#DETECTED_REPOS[@]} -gt 0 ]; then
-    echo ""
-    info "Repos detectados — aceite ou recuse cada sugestão:"
-    echo ""
-    for repo in "${DETECTED_REPOS[@]}"; do
-        alias="$(infer_alias "$repo" "$PROJECT_NAME")"
-        desc="$(infer_description "$alias")"
-        printf "    %-30s → /%s  \"%s\"" "$repo" "$alias" "$desc"
-        read -p "  (Y/n) " -n 1 -r
-        echo
-        if [[ ! $REPLY =~ ^[Nn]$ ]]; then
-            COMMANDS+=("$alias|$repo|$desc")
-            ok "Adicionado: /$alias → $repo/"
-        fi
-    done
+PROJECT_TYPE="$(detect_project_type "$TARGET_DIR")"
+
+echo ""
+if [ "$PROJECT_TYPE" = "monorepo" ]; then
+    info "Tipo de projeto detectado: ${GREEN}MONOREPO${NC}"
+else
+    info "Tipo de projeto detectado: ${GREEN}MONOLITO${NC}"
 fi
 
-echo ""
-echo "  Adicionar mais repos? (um por linha, vazio para encerrar)"
-echo "  Formato: <alias> <path_relativo> <descricao>"
-echo ""
+# Permite override da detecção
+if [ "$PROJECT_TYPE" = "monorepo" ]; then
+    read -p "  Confirma? (Enter = sim, m = forçar monolito): " override
+    [[ "$override" =~ ^[Mm] ]] && PROJECT_TYPE="monolith"
+else
+    read -p "  Confirma? (Enter = sim, r = forçar monorepo): " override
+    [[ "$override" =~ ^[Rr] ]] && PROJECT_TYPE="monorepo"
+fi
 
-while true; do
-    read -p "  > " cmd_alias cmd_path cmd_desc_rest
-    [ -z "$cmd_alias" ] && break
+COMMANDS=()
 
-    # Se só passou alias, tenta inferir path
-    if [ -z "$cmd_path" ]; then
-        cmd_path="$cmd_alias"
-        cmd_desc_rest="Navega para $cmd_alias"
+if [ "$PROJECT_TYPE" = "monorepo" ]; then
+    # ─── Fluxo monorepo: listar pastas e pedir alias ─────────────────────
+    echo ""
+    info "Configuração de commands (atalhos para navegação entre repos)"
+    echo ""
+
+    # Detecta subdiretórios
+    DETECTED_REPOS=()
+    for dir in "$TARGET_DIR"/*/; do
+        [ -d "$dir" ] || continue
+        local_dirname="$(basename "$dir")"
+        [[ "$local_dirname" == .* ]] && continue
+        [[ "$local_dirname" =~ $IGNORED_DIRS ]] && continue
+        DETECTED_REPOS+=("$local_dirname")
+    done
+
+    if [ ${#DETECTED_REPOS[@]} -gt 0 ]; then
+        echo "  Para cada pasta, digite o alias do command:"
+        echo "    Enter     = aceitar sugestão entre [ ]"
+        echo "    novo nome = usar como alias customizado"
+        echo "    -         = pular (não criar command)"
+        echo ""
+
+        for repo in "${DETECTED_REPOS[@]}"; do
+            suggested="$(infer_alias "$repo")"
+            read -p "    $repo [$suggested]: " user_input
+
+            # Trim whitespace
+            trimmed="$(echo "$user_input" | xargs 2>/dev/null || true)"
+
+            if [ -z "$trimmed" ] && [ -z "$user_input" ]; then
+                # Enter pressionado (input vazio) → aceita sugestão
+                alias="$suggested"
+                desc="$(infer_description "$alias")"
+                COMMANDS+=("$alias|$repo|$desc")
+                ok "  /$alias → $repo/"
+            elif [ -z "$trimmed" ] || [ "$trimmed" = "-" ]; then
+                # Espaço(s) ou "-" → pular
+                warn "  $repo — pulado"
+            else
+                # Alias customizado
+                alias="$trimmed"
+                desc="$(infer_description "$alias")"
+                COMMANDS+=("$alias|$repo|$desc")
+                ok "  /$alias → $repo/"
+            fi
+        done
     fi
-    if [ -z "$cmd_desc_rest" ]; then
-        cmd_desc_rest="Navega para $cmd_path"
-    fi
 
-    COMMANDS+=("$cmd_alias|$cmd_path|$cmd_desc_rest")
-done
+    echo ""
+    echo "  Adicionar mais repos manualmente? (um por linha, vazio para encerrar)"
+    echo "  Formato: <alias> <path_relativo> <descricao>"
+    echo ""
+
+    while true; do
+        read -p "  > " cmd_alias cmd_path cmd_desc_rest
+        [ -z "$cmd_alias" ] && break
+
+        if [ -z "$cmd_path" ]; then
+            cmd_path="$cmd_alias"
+            cmd_desc_rest="Navega para $cmd_alias"
+        fi
+        if [ -z "$cmd_desc_rest" ]; then
+            cmd_desc_rest="Navega para $cmd_path"
+        fi
+
+        COMMANDS+=("$cmd_alias|$cmd_path|$cmd_desc_rest")
+    done
+
+else
+    # ─── Fluxo monolito: pula commands de navegação ──────────────────────
+    echo ""
+    info "Projeto monolito — commands de navegação entre repos não são necessários."
+    info "Commands de workflow (/feature, /fix, /improve, /review, /pre-deploy) já foram instalados."
+fi
 
 if [ ${#COMMANDS[@]} -gt 0 ]; then
     info "Gerando commands..."
@@ -315,8 +392,8 @@ CMDEOF
 
         ok "Criado command: /logs → logs git do projeto"
     fi
-else
-    info "Nenhum command configurado. Você pode criar depois em .claude/commands/"
+elif [ "$PROJECT_TYPE" = "monorepo" ]; then
+    info "Nenhum command de navegação configurado. Você pode criar depois em .claude/commands/"
 fi
 
 echo ""

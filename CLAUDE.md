@@ -4,27 +4,37 @@ Este arquivo define as convenções padrão do time. Carregado automaticamente p
 
 ## Estrutura de projeto
 
-Seguimos o padrão monorepo com separação frontend/backend:
+Seguimos dois padrões, monorepo com mais de projeto ou monolito.
+
+### Monorepo:
 
 ```
 ./<projeto>/
-├── <projeto>_frontend/    # Aplicação frontend
-├── <projeto>_backend/     # Aplicação backend (sufixo opcional)
+├── <repo_1>/              # Aplicação podendo ser frontend, backend ou algum outro repo ou micro-servico
+├── <repo_2>/              #
 ├── .claude/               # Skills e configs do Claude Code
 ├── CLAUDE.md              # Este arquivo (convenções do projeto)
 └── CLAUDE.local.md        # Overrides locais (não commitado)
 ```
 
+### Monolito
+```
+./<projeto>/
+├── src/                   # Pode variar de acordo com stack do projeto (src/ para React ou Node, app/ para Python, src/ para Laravel e etc)
+├── .claude/               # Skills e configs do Claude Code
+├── CLAUDE.md              # Este arquivo (convenções do projeto)
+└── CLAUDE.local.md        # Overrides locais (não commitado)
+```
+
+
 ## Git
 
 ### Branches
 
-- `main` — produção, sempre estável
-- `develop` — integração, base para features
-- `feature/<ticket>` — novas funcionalidades
-- `fix/<ticket>` — correções de bugs
-- `hotfix/<ticket>` — correções urgentes em produção
-- `chore/<ticket>` — tarefas de manutenção
+- `<ticket>` — novas funcionalidades
+- `main` / `master` — branch de testes onde vão as tarefas aprovadas
+- `HML` - reflete o ambiente de homologação depois de aprovadas as alterações na master
+- `PROD` - reflete o ambiente de produção com a versão de HML aprovada
 
 ### Commits
 
@@ -32,10 +42,6 @@ Seguimos Conventional Commits. Formato:
 
 ```
 <ticket> - <descrição curta>
-
-<corpo opcional>
-
-<footer opcional>
 ```
 
 ### Pull Requests

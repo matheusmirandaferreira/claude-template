@@ -26,13 +26,27 @@ git clone https://github.com/matheusmirandaferreira/claude-template.git /tmp/ctc
 /tmp/ctc/scripts/setup.sh /caminho/do/seu/projeto
 ```
 
-O setup detecta as subpastas do projeto e sugere commands automaticamente:
+O setup detecta automaticamente o tipo de projeto:
 
+**Monorepo** (2+ pastas com projeto):
 ```
-i  Repos detectados — aceite ou recuse cada sugestao:
+i  Tipo de projeto detectado: MONOREPO
+  Confirma? (Enter = sim, m = forcar monolito):
 
-    meuapp_frontend              → /front  "Aplicacao frontend"  (Y/n)
-    meuapp_backend               → /back   "API backend"         (Y/n)
+  Para cada pasta, digite o alias do command:
+    Enter     = aceitar sugestao entre [ ]
+    novo nome = usar como alias customizado
+    -         = pular (nao criar command)
+
+    meuapp_frontend [front]: 
+    meuapp_backend [back]: api
+    meuapp_socket [socket]: -
+```
+
+**Monolito** (projeto unico):
+```
+i  Tipo de projeto detectado: MONOLITO
+i  Projeto monolito — commands de navegacao nao sao necessarios.
 ```
 
 Resultado: skills, commands, settings e convencoes instalados no projeto.
@@ -50,18 +64,19 @@ Abra o Claude Code no projeto e use os commands para guiar o trabalho:
 
 Cada command segue um processo estruturado — o Claude planeja antes de codar, testa a cada passo, e documenta ao final.
 
-### 3. Navegacao entre repos
+### 3. Navegacao entre repos (monorepo)
 
-Commands gerados pelo setup para monorepos:
+Commands gerados pelo setup para monorepos — os aliases sao definidos pelo usuario durante a instalacao:
 
 | Command | O que faz |
 |---|---|
-| `/front` | Inspeciona o repo frontend (estrutura, deps, git status) |
-| `/back` | Inspeciona o repo backend |
+| `/<alias>` | Inspeciona o repo (estrutura, deps, git status) |
 | `/status` | Visao geral de todos os repos (branch, diff, ultimo commit) |
 | `/logs` | Logs git recentes de todos os repos |
 
-Cada command de repo aceita sub-comandos: `/front status`, `/front deps`, `/front run dev`.
+Cada command de repo aceita sub-comandos: `/<alias> status`, `/<alias> deps`, `/<alias> run dev`.
+
+> Em projetos monolito, commands de navegacao nao sao gerados.
 
 ### 4. Qualidade e entrega
 
@@ -124,9 +139,11 @@ git clone https://github.com/matheusmirandaferreira/claude-template.git /tmp/ctc
 O setup:
 1. Instala skills e commands no `.claude/` do projeto
 2. Copia `settings.json` com permissoes e hooks padrao
-3. Detecta subpastas e sugere commands de navegacao
-4. Cria `CLAUDE.local.md` para overrides pessoais
-5. Atualiza `.gitignore`
+3. Detecta tipo de projeto (monorepo vs monolito)
+4. Monorepo: lista pastas e pede alias para gerar commands de navegacao
+5. Monolito: pula commands de navegacao (projeto unico)
+6. Cria `CLAUDE.local.md` para overrides pessoais
+7. Atualiza `.gitignore`
 
 ### Git submodule
 
