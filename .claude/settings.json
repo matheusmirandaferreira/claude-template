@@ -54,13 +54,11 @@
   "enabledPlugins": {
     "frontend-design@claude-plugins-official": true,
     "superpowers@claude-plugins-official": true,
-    "ui-ux-pro-max@ui-ux-pro-max-skill": true,
     "feature-dev@claude-plugins-official": true,
     "typescript-lsp@claude-plugins-official": true,
     "pyright-lsp@claude-plugins-official": true,
     "php-lsp@claude-plugins-official": true,
-    "skill-creator@claude-plugins-official": true,
-    "andrej-karpathy-skills@karpathy-skills": true
+    "skill-creator@claude-plugins-official": true
   },
   "effortLevel": "high",
   "_comment": "Configurações padrão do time. Ajuste conforme necessidade do projeto."
